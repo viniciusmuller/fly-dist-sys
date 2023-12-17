@@ -81,22 +81,19 @@ func replicate(node *maelstrom.Node, neighbors []string, number uint64) error {
 	return nil
 }
 
+type TopologyObject struct {
+	Topology map[string][]string `json:"topology"`
+}
+
 func ParseNeighbors(self string, body_content []byte) (error, []string) {
 	neighbors := make([]string, 0)
 
-	// TODO: fix JSON topology parsing
-	var body map[string]interface{}
-	if err := json.Unmarshal(body_content, &body); err != nil {
+	var tp TopologyObject
+	if err := json.Unmarshal(body_content, &tp); err != nil {
 		return err, nil
 	}
 
-	bs, _ := json.Marshal(body["topology"])
-	var topology map[string][]string
-	if err := json.Unmarshal(bs, &topology); err != nil {
-		return err, nil
-	}
-
-	for node, node_peers := range topology {
+	for node, node_peers := range tp.Topology {
 		if node == self {
 			continue;
 		}
